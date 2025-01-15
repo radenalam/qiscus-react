@@ -32,13 +32,13 @@ export const Room: React.FC<RoomProps> = ({ roomData, CloseRoom }) => {
     };
 
     setComments([...comments, newComment]);
-    setNewMessage(""); // Reset input
+    setNewMessage("");
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const fileURL = URL.createObjectURL(file); // Temporary URL for preview
+      const fileURL = URL.createObjectURL(file);
       addMessage(JSON.stringify({ fileURL, type: file.type }), "file");
     }
   };
@@ -114,7 +114,6 @@ export const Room: React.FC<RoomProps> = ({ roomData, CloseRoom }) => {
                       <a
                         href={fileURL}
                         target="_blank"
-                        rel="noopener noreferrer"
                         className="text-blue-500 underline"
                       >
                         View File
