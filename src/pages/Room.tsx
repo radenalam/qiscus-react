@@ -20,19 +20,27 @@ export const Room: React.FC<RoomProps> = ({ roomData, CloseRoom }) => {
   const [comments, setComments] = useState(roomData.comments);
   const [newMessage, setNewMessage] = useState<string>("");
 
-  const addMessage = () => {
-    if (newMessage.trim() === "") return;
+  const currentUser = "customer@mail.com";
 
-    const customer = "customer@mail.com"; // Hardcoded sender for example
+  const addMessage = (message: string, type: "text" | "file") => {
+    if (message.trim() === "") return;
     const newComment = {
-      id: Date.now(), // Unique ID
-      type: "text",
-      message: newMessage,
-      sender: customer,
+      id: Date.now(),
+      type: type,
+      message: message,
+      sender: currentUser,
     };
 
     setComments([...comments, newComment]);
     setNewMessage(""); // Reset input
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const fileURL = URL.createObjectURL(file); // Temporary URL for preview
+      addMessage(JSON.stringify({ fileURL, type: file.type }), "file");
+    }
   };
 
   return (
@@ -64,28 +72,70 @@ export const Room: React.FC<RoomProps> = ({ roomData, CloseRoom }) => {
           <div
             key={comment.id}
             className={`flex ${
-              comment.sender === "customer@mail.com"
-                ? "justify-end"
-                : "justify-start"
+              comment.sender === currentUser ? "justify-end" : "justify-start"
             } mb-4`}
           >
             <div
               className={`max-w-xs px-4 py-2 rounded-lg shadow-lg border ${
-                comment.sender === "customer@mail.com"
+                comment.sender === currentUser
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-secondary-foreground"
               }`}
             >
-              <p className="text-sm">
-                <strong>
-                  {
-                    roomData.room.participant.find(
-                      (p: any) => p.id === comment.sender
-                    )?.name
+              {comment.type === "file" ? (
+                (() => {
+                  const { fileURL, type } = JSON.parse(comment.message);
+                  if (type.startsWith("image/")) {
+                    return (
+                      <img
+                        src={fileURL}
+                        alt="Uploaded"
+                        className="max-w-full rounded-lg"
+                      />
+                    );
+                  } else if (type.startsWith("video/")) {
+                    return (
+                      <video
+                        src={fileURL}
+                        controls
+                        className="max-w-full rounded-lg"
+                      />
+                    );
+                  } else if (type === "application/pdf") {
+                    return (
+                      <iframe
+                        src={fileURL}
+                        title="PDF File"
+                        className="w-full h-64 border rounded-lg"
+                      />
+                    );
+                  } else {
+                    return (
+                      <a
+                        href={fileURL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline"
+                      >
+                        View File
+                      </a>
+                    );
                   }
-                </strong>
-              </p>
-              <p>{comment.message}</p>
+                })()
+              ) : (
+                <>
+                  <p className="text-sm">
+                    <strong>
+                      {
+                        roomData.room.participant.find(
+                          (p: any) => p.id === comment.sender
+                        )?.name
+                      }
+                    </strong>
+                  </p>
+                  <p>{comment.message}</p>
+                </>
+              )}
             </div>
           </div>
         ))}
@@ -99,14 +149,12 @@ export const Room: React.FC<RoomProps> = ({ roomData, CloseRoom }) => {
           placeholder="Type your message..."
           className="flex-1 px-4 py-2 border rounded-lg text-secondary-foreground"
         />
-        <button
-          onClick={addMessage}
-          className="ml-3 p-2 bg-secondary rounded-lg"
-        >
+        <label className="ml-3 p-2 bg-secondary rounded-lg cursor-pointer">
           <Paperclip size={24} />
-        </button>
+          <input type="file" className="hidden" onChange={handleFileUpload} />
+        </label>
         <button
-          onClick={addMessage}
+          onClick={() => addMessage(newMessage, "text")}
           className="ml-3 p-2 bg-secondary rounded-lg"
         >
           <SendHorizonalIcon size={24} />

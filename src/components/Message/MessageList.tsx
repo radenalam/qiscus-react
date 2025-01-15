@@ -2,7 +2,7 @@ import { Users, UsersRound } from "lucide-react";
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-type MessageContentProps = {
+type MessageListProps = {
   type: string;
   room_name: string;
   sender: string;
@@ -11,7 +11,7 @@ type MessageContentProps = {
   id?: number;
 };
 
-export const MessageContent: React.FC<MessageContentProps> = ({
+export const MessageList: React.FC<MessageListProps> = ({
   type,
   room_name,
   sender,

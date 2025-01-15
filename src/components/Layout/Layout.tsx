@@ -1,6 +1,5 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { Navbar } from "../Navbar/Navbar";
 import { Header } from "../Header";
 
 export const Layout: React.FC = () => {
@@ -11,7 +10,7 @@ export const Layout: React.FC = () => {
         <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
-        <footer>{/* <Navbar /> */}</footer>
+        {/* <footer><Navbar /></footer> */}
       </div>
     </div>
   );
