@@ -83,7 +83,7 @@
         {
           "id": 885517,
           "type": "file",
-          "message": "Lampiran bukti pembayaran",
+          "message": "Lampiran PDF",
           "sender": "customer@mail.com",
           "attachments": [
             {
@@ -96,13 +96,26 @@
         {
           "id": 885512,
           "type": "file",
-          "message": "Lampiran bukti pembayaran",
+          "message": "Lampiran Foto",
           "sender": "customer@mail.com",
           "attachments": [
             {
               "id": "a1b2c3",
-              "url": "https://vite.dev/logo.svg",
-              "type": "image/svg+xml"
+              "url": "https://samplelib.com/lib/preview/jpeg/sample-clouds-400x300.jpg",
+              "type": "image/jpg"
+            }
+          ]
+        },
+        {
+          "id": 88551233,
+          "type": "file",
+          "message": "Lampiran Video",
+          "sender": "customer@mail.com",
+          "attachments": [
+            {
+              "id": "a1b2c3",
+              "url": "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
+              "type": "video/mp4"
             }
           ]
         },
