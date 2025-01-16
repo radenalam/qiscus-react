@@ -1,0 +1,77 @@
+{
+  "results": [
+    {
+      "room": {
+        "id": 12457,
+        "is_group": false,
+        "participant": [
+          {
+            "id": "admin@mail.com",
+            "name": "Admin",
+            "role": 0
+          },
+          {
+            "id": "customer@mail.com",
+            "name": "King customer",
+            "role": 1
+          }
+        ]
+      },
+      "comments": [
+        {
+          "id": 882326,
+          "type": "text",
+          "message": "Baik, silahkan kirimkan lampiran bukti pembayarannya",
+          "sender": "agent@mail.com"
+        },
+        {
+          "id": 885517,
+          "type": "file",
+          "message": "Lampiran bukti pembayaran",
+          "sender": "customer@mail.com",
+          "attachments": [
+            {
+              "id": "a1b2c3",
+              "url": "https://www.antennahouse.com/hubfs/xsl-fo-sample/pdf/basic-link-1.pdf",
+              "type": "application/pdf"
+            }
+          ]
+        },
+        {
+          "id": 885518,
+          "type": "text",
+          "message": "Terima kasih atas bukti pembayarannya",
+          "sender": "agent@mail.com"
+        }
+      ]
+    },
+    {
+      "room": {
+        "name": "Product A",
+        "id": 122226,
+        "image_url": "https://picsum.photos/id/237/200/300",
+        "is_group": true,
+        "participant": [
+          {
+            "id": "admin@mail.com",
+            "name": "Admin",
+            "role": 0
+          },
+          {
+            "id": "customer@mail.com",
+            "name": "King customer",
+            "role": 1
+          }
+        ]
+      },
+      "comments": [
+        {
+          "id": 885512,
+          "type": "text",
+          "message": "Selamat malam",
+          "sender": "admin@mail.com"
+        }
+      ]
+    }
+  ]
+}

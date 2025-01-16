@@ -2,46 +2,63 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Paperclip, SendHorizonalIcon, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { RoomData } from "@/lib/roomData";
 
-type RoomProps = {
-  roomData: {
-    room: {
-      name: string;
-      id: number;
-      image_url: string;
-      participant: { id: string; name: string; role: number }[];
-    };
-    comments: { id: number; type: string; message: string; sender: string }[];
-  };
+interface RoomProps extends RoomData {
+  currentUser: string;
   CloseRoom: () => void;
-};
+}
 
-export const Room: React.FC<RoomProps> = ({ roomData, CloseRoom }) => {
+export const Room: React.FC<RoomProps> = ({
+  roomData,
+  currentUser,
+  CloseRoom,
+}) => {
   const [comments, setComments] = useState(roomData.comments);
   const [newMessage, setNewMessage] = useState<string>("");
 
-  const currentUser = "customer@mail.com";
+  const type = roomData.room.is_group === false ? "direct" : "group";
 
-  const addMessage = (message: string, type: "text" | "file") => {
-    if (message.trim() === "") return;
+  const addMessage = (
+    message: string,
+    type: "text" | "file",
+    attachments?: any[]
+  ) => {
     const newComment = {
       id: Date.now(),
-      type: type,
-      message: message,
+      type,
+      message,
       sender: currentUser,
+      attachments: attachments || [],
     };
 
-    setComments([...comments, newComment]);
+    setComments((prevComments) => [...prevComments, newComment]);
+    console.log(comments);
     setNewMessage("");
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const fileURL = URL.createObjectURL(file);
-      addMessage(JSON.stringify({ fileURL, type: file.type }), "file");
+      const fileURL = URL.createObjectURL(file); // Buat blob URL untuk file baru
+      addMessage("Uploaded a file", "file", [
+        {
+          id: `${Date.now()}`, // ID unik untuk lampiran
+          url: fileURL,
+          type: file.type,
+        },
+      ]);
     }
   };
+
+  const roomImage = roomData.room.image_url;
+  const roomName = roomData.room.name;
+  const user = roomData.room.participant.find(
+    (p) => p.id !== currentUser
+  )?.name;
+  const whoParticipants = roomData.room.participant
+    .map((p) => p.name)
+    .join(", ");
 
   return (
     <div className="flex flex-col h-full bg-primary-foreground">
@@ -50,13 +67,15 @@ export const Room: React.FC<RoomProps> = ({ roomData, CloseRoom }) => {
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-4">
             <Avatar>
-              <AvatarImage src={roomData.room.image_url} />
+              <AvatarImage src={roomImage} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-lg font-semibold">{roomData.room.name}</h1>
+              <h1 className="text-lg font-semibold">
+                {type === "group" ? roomName : user}
+              </h1>
               <p className="text-sm text-secondary-foreground">
-                {roomData.room.participant.length} Participants
+                {type === "group" ? whoParticipants : ""}
               </p>
             </div>
           </div>
@@ -68,7 +87,7 @@ export const Room: React.FC<RoomProps> = ({ roomData, CloseRoom }) => {
 
       {/* Chat Messages */}
       <main className="flex-1 p-4 overflow-y-auto bg-primary-foreground">
-        {comments.map((comment: any) => (
+        {comments.map((comment) => (
           <div
             key={comment.id}
             className={`flex ${
@@ -83,57 +102,71 @@ export const Room: React.FC<RoomProps> = ({ roomData, CloseRoom }) => {
               }`}
             >
               {comment.type === "file" ? (
-                (() => {
-                  const { fileURL, type } = JSON.parse(comment.message);
-                  if (type.startsWith("image/")) {
-                    return (
-                      <img
-                        src={fileURL}
-                        alt="Uploaded"
-                        className="max-w-full rounded-lg"
-                      />
-                    );
-                  } else if (type.startsWith("video/")) {
-                    return (
-                      <video
-                        src={fileURL}
-                        controls
-                        className="max-w-full rounded-lg"
-                      />
-                    );
-                  } else if (type === "application/pdf") {
-                    return (
-                      <iframe
-                        src={fileURL}
-                        title="PDF File"
-                        className="w-full h-64 border rounded-lg"
-                      />
-                    );
-                  } else {
-                    return (
-                      <a
-                        href={fileURL}
-                        target="_blank"
-                        className="text-blue-500 underline"
-                      >
-                        View File
-                      </a>
-                    );
-                  }
-                })()
-              ) : (
-                <>
-                  <p className="text-sm">
-                    <strong>
-                      {
-                        roomData.room.participant.find(
-                          (p: any) => p.id === comment.sender
-                        )?.name
-                      }
-                    </strong>
+                <div>
+                  <p className="text-sm font-bold">
+                    {
+                      roomData.room.participant.find(
+                        (p) => p.id === comment.sender
+                      )?.name
+                    }
                   </p>
                   <p>{comment.message}</p>
-                </>
+                  <div className="mt-2 space-y-2">
+                    {comment.attachments?.map((attachment) => {
+                      if (attachment.type.startsWith("image/")) {
+                        return (
+                          <img
+                            key={attachment.id}
+                            src={attachment.url}
+                            alt="Uploaded Image"
+                            className="max-w-full rounded-lg"
+                          />
+                        );
+                      } else if (attachment.type.startsWith("video/")) {
+                        return (
+                          <video
+                            key={attachment.id}
+                            src={attachment.url}
+                            controls
+                            className="max-w-full rounded-lg"
+                          />
+                        );
+                      } else if (attachment.type === "application/pdf") {
+                        return (
+                          <iframe
+                            key={attachment.id}
+                            src={attachment.url}
+                            title="PDF File"
+                            className="w-full h-64 border rounded-lg"
+                          />
+                        );
+                      } else {
+                        return (
+                          <a
+                            key={attachment.id}
+                            href={attachment.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 underline"
+                          >
+                            View File
+                          </a>
+                        );
+                      }
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-sm font-bold">
+                    {
+                      roomData.room.participant.find(
+                        (p) => p.id === comment.sender
+                      )?.name
+                    }
+                  </p>
+                  <p>{comment.message}</p>
+                </div>
               )}
             </div>
           </div>
@@ -145,6 +178,12 @@ export const Room: React.FC<RoomProps> = ({ roomData, CloseRoom }) => {
         <Input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addMessage(newMessage, "text");
+            }
+          }}
           placeholder="Type your message..."
           className="flex-1 px-4 py-2 border rounded-lg text-secondary-foreground"
         />

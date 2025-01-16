@@ -1,60 +1,45 @@
-import { Users, UsersRound } from "lucide-react";
+import { User, Users } from "lucide-react";
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { RoomData } from "@/lib/roomData";
 
-type MessageListProps = {
-  type: string;
-  room_name: string;
-  sender: string;
-  last_text: string;
-  image_url?: string;
-  id?: number;
-};
+interface NewMessageListProps extends RoomData {
+  currentUser: string;
+}
 
-export const MessageList: React.FC<MessageListProps> = ({
-  type,
-  room_name,
-  sender,
-  last_text,
-  image_url,
+export const MessageList: React.FC<NewMessageListProps> = ({
+  roomData,
+  currentUser,
 }) => {
+  const type = roomData.room.is_group === false ? "direct" : "group";
+  const lastComment = roomData.comments[roomData.comments.length - 1];
+  const senderName = roomData.room.participant.find(
+    (p) => p.id === lastComment?.sender
+  )?.name;
+  const roomName = roomData.room.name;
+  const user = roomData.room.participant.find(
+    (p) => p.id !== currentUser
+  )?.name;
+
   return (
-    <div className="max-h-24">
-      {type === "group" ? (
-        <div className="flex items-center gap-2 mx-2">
-          <Avatar>
-            <AvatarImage src={image_url} />
-            <AvatarFallback>
-              <UsersRound />
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex w-full justify-between">
-            <div className="flex flex-col gap-1 w-full">
-              <div className="font-bold h-1/3">{room_name}</div>
-              <div className="h-2/3 items-start">
-                {sender}: {last_text}
-              </div>
-            </div>
-            <div className="flex items-start p-1">11.12</div>
+    <div className="flex items-center gap-2 mx-2">
+      <Avatar>
+        <AvatarImage src={roomData.room.image_url} />
+        <AvatarFallback>
+          {type === "group" ? <Users /> : <User />}
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex w-full justify-between">
+        <div className="flex flex-col gap-1 w-full">
+          <div className="font-bold">{type === "group" ? roomName : user}</div>
+          <div className={type === "group" ? "h-2/3 items-start" : ""}>
+            {type === "group"
+              ? `${senderName} : ${lastComment?.message}`
+              : lastComment?.message}
           </div>
         </div>
-      ) : (
-        <div className="flex items-center h-16 gap-2 mx-2">
-          <Avatar>
-            <AvatarImage src={image_url} />
-            <AvatarFallback>
-              <Users />
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex w-full border-b justify-between">
-            <div className="flex flex-col gap-1 ">
-              <div className="font-bold">{room_name}</div>
-              <div className="">{last_text}</div>
-            </div>
-            <div className="flex items-start p-1">11.12</div>
-          </div>
-        </div>
-      )}
+        <div className="flex items-start p-1">11.12</div>
+      </div>
     </div>
   );
 };

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { MessageList } from "@/components/Message/MessageList";
 import { Room } from "./Room";
-import { results } from "@/lib/const/response.json";
+// import { results } from "@/lib/const/response.json";
+import { results } from "@/lib/const/extended_response.json";
 import { Header } from "@/components/Header";
 
 export const Chat: React.FC = () => {
@@ -10,6 +11,8 @@ export const Chat: React.FC = () => {
   const handleSelectRoom = (room: any) => {
     setSelectedRoom(room);
   };
+
+  const currentUser = "customer@mail.com";
 
   return (
     <div className="flex h-screen fixed w-full">
@@ -26,19 +29,7 @@ export const Chat: React.FC = () => {
               className="cursor-pointer py-2 hover:bg-accent border-b"
               onClick={() => handleSelectRoom(result)}
             >
-              <MessageList
-                type="group"
-                room_name={result.room.name}
-                last_text={result.comments[result.comments.length - 1]?.message}
-                sender={
-                  result.room.participant.find(
-                    (p: any) =>
-                      p.id ===
-                      result.comments[result.comments.length - 1]?.sender
-                  )?.name
-                }
-                image_url={result.room.image_url}
-              />
+              <MessageList roomData={result} currentUser={currentUser} />
             </div>
           ))}
         </div>
@@ -50,7 +41,9 @@ export const Chat: React.FC = () => {
         >
           {selectedRoom ? (
             <Room
+              key={selectedRoom.room.id}
               roomData={selectedRoom}
+              currentUser={currentUser}
               CloseRoom={() => setSelectedRoom(null)}
             />
           ) : (
